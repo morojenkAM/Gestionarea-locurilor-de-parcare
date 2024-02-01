@@ -1,0 +1,163 @@
+<?php
+include('connectDB.php');
+include('template.php');
+
+// Verifică dacă s-a trimis formularul de adăugare pentru tabelul "Abonamente"
+if (isset($_POST['adauga_abonament'])) {
+    $inceput_abonament = $_POST['inceput_abonament'];
+    $sfarsit_abonament = $_POST['sfarsit_abonament'];
+
+    $query_adauga_abonament = "INSERT INTO abonamente (InceputAbonament, SfarsitAbonament) 
+                               VALUES ('$inceput_abonament', '$sfarsit_abonament')";
+
+    if ($conn->query($query_adauga_abonament) === TRUE) {
+        echo "Abonament adăugat cu succes!";
+    } else {
+        echo "Eroare la adăugare abonament: " . $conn->error;
+    }
+}
+
+// Verifică dacă s-a trimis formularul de actualizare pentru tabelul "Abonamente"
+if (isset($_POST['actualizeaza_abonament'])) {
+    $id_abonament = $_POST['id_abonament'];
+    $inceput_abonament_nou = $_POST['inceput_abonament_nou'];
+    $sfarsit_abonament_nou = $_POST['sfarsit_abonament_nou'];
+
+    $query_actualizeaza_abonament = "UPDATE abonamente 
+                                     SET InceputAbonament='$inceput_abonament_nou', SfarsitAbonament='$sfarsit_abonament_nou' 
+                                     WHERE IDAbonamente=$id_abonament";
+
+    if ($conn->query($query_actualizeaza_abonament) === TRUE) {
+        echo "Abonament actualizat cu succes!";
+    } else {
+        echo "Eroare la actualizare abonament: " . $conn->error;
+    }
+}
+
+// Verifică dacă s-a trimis formularul de ștergere pentru tabelul "Abonamente"
+if (isset($_POST['sterge_abonament'])) {
+    $id_abonament_sters = $_POST['id_abonament_sters'];
+
+    $query_sterge_abonament = "DELETE FROM abonamente WHERE IDAbonamente=$id_abonament_sters";
+
+    if ($conn->query($query_sterge_abonament) === TRUE) {
+        echo "Abonament șters cu succes!";
+    } else {
+        echo "Eroare la ștergere abonament: " . $conn->error;
+    }
+}
+
+// Repetați aceeași structură pentru celelalte tabele și operații CRUD
+
+?>
+
+<!-- Restul codului HTML -->
+
+<!-- Formular pentru adăugare abonament -->
+<h2>Adăugare Abonament Nou</h2>
+<form action="admin_tabele.php" method="post">
+    <label for="inceput_abonament">Inceput Abonament:</label>
+    <input type="date" name="inceput_abonament" required>
+
+    <label for="sfarsit_abonament">Sfârșit Abonament:</label>
+    <input type="date" name="sfarsit_abonament" required>
+
+    <input type="submit" value="Adaugă Abonament" name="adauga_abonament">
+</form>
+
+<!-- Formular pentru actualizare abonament -->
+<h2>Actualizare Abonament</h2>
+<form action="admin_tabele.php" method="post">
+    <label for="id_abonament">ID Abonament:</label>
+    <input type="text" name="id_abonament" required>
+
+    <label for="inceput_abonament_nou">Inceput Abonament Nou:</label>
+    <input type="date" name="inceput_abonament_nou" required>
+
+    <label for="sfarsit_abonament_nou">Sfârșit Abonament Nou:</label>
+    <input type="date" name="sfarsit_abonament_nou" required>
+
+    <input type="submit" value="Actualizează Abonament" name="actualizeaza_abonament">
+</form>
+
+<!-- Formular pentru ștergere abonament -->
+<h2>Ștergere Abonament</h2>
+<form action="admin_tabele.php" method="post">
+    <label for="id_abonament_sters">ID Abonament de Șters:</label>
+    <input type="text" name="id_abonament_sters" required>
+
+    <input type="submit" value="Șterge Abonament" name="sterge_abonament">
+</form>
+
+<!-- Repetați aceeași structură pentru celelalte tabele și operații CRUD -->
+
+<!-- Restul codului HTML -->
+
+<?php
+$conn->close();
+?>
+
+
+
+
+<?php
+include('connectDB.php');
+include('template.php');
+
+if (isset($_GET['tabel'])) {
+    $tabel = mysqli_real_escape_string($conn, $_GET['tabel']);
+
+    $query = "SELECT * FROM $tabel";
+    $result = $conn->query($query);
+?>
+
+    <h2>Date din tabelul "<?php echo htmlspecialchars(ucfirst($tabel)); ?>"</h2>
+    <table>
+        <tr>
+            <?php
+            $header_query = "SHOW COLUMNS FROM $tabel";
+            $header_result = $conn->query($header_query);
+            while ($header_row = $header_result->fetch_assoc()) {
+                echo "<th>" . htmlspecialchars($header_row['Field']) . "</th>";
+            }
+            ?>
+        </tr>
+
+        <?php
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            foreach ($row as $value) {
+                echo "<td>" . htmlspecialchars($value) . "</td>";
+            }
+            echo "</tr>";
+        }
+        ?>
+    </table>
+
+<?php
+} else {
+    echo "";
+}
+?>
+
+<!-- Rest of HTML code -->
+
+<?php
+if (isset($_POST['adauga_abonament'])) {
+    $inceput_abonament = mysqli_real_escape_string($conn, $_POST['inceput_abonament']);
+    $sfarsit_abonament = mysqli_real_escape_string($conn, $_POST['sfarsit_abonament']);
+
+    $query_adauga_abonament = "INSERT INTO abonamente (InceputAbonament, SfarsitAbonament) 
+                               VALUES ('$inceput_abonament', '$sfarsit_abonament')";
+
+    if ($conn->query($query_adauga_abonament) === TRUE) {
+        echo "Abonament adăugat cu succes!";
+    } else {
+        echo "Eroare la adăugare abonament: " . htmlspecialchars($conn->error);
+    }
+}
+
+// Similar updates for actualizare_abonament, sterge_abonament, and other CRUD operations
+
+$conn->close();
+?>
